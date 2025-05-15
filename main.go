@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"time"
@@ -106,16 +107,34 @@ func handle(conn net.Conn) {
 	// receive commands
 
 	for {
-		buf := make([]byte, 1024)
-		n, err := conn.Read(buf)
-		if err != nil {
-			fmt.Println("Read error:", err)
+		lenBuf := make([]byte, 4)
+		if _, err := io.ReadFull(conn, lenBuf); err != nil {
+			fmt.Println("Read length error:", err)
 			break
 		}
-		fmt.Println("Received:", string(buf[:n]))
+
+		var length int32
+		if err := binary.Read(bytes.NewReader(lenBuf), binary.BigEndian, &length); err != nil {
+			fmt.Println("Parse length error:", err)
+			break
+		}
+
+		if length < 4 {
+			fmt.Println("Invalid message length:", length)
+			break
+		}
+
+		bodyLen := length - 4
+		buf := make([]byte, bodyLen)
+		if _, err := io.ReadFull(conn, buf); err != nil {
+			fmt.Println("Read body error:", err)
+			break
+		}
+
+		fmt.Println("Received:", string(buf))
 
 		// todo: handle commands
-		if bytes.Contains(buf[:n], []byte("<login")) {
+		if bytes.Contains(buf, []byte("<login")) {
 			break
 		}
 	}

@@ -43,14 +43,6 @@ func main() {
 func handle(conn net.Conn) {
 	defer conn.Close()
 
-	tlsConn, ok := conn.(*tls.Conn)
-	if ok {
-		if err := tlsConn.Handshake(); err != nil {
-			fmt.Println("TLS handshake failed:", err)
-			return
-		}
-	}
-
 	// send greeting message
 
 	epp := EPP{

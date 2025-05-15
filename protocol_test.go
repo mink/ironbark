@@ -52,9 +52,7 @@ func TestGreetingXML(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to marshal XML: %v", err)
 	}
-	greeting := string(bytes)
-
-	// todo - self closing tags for DCP
+	greeting := string(ConvertSelfClosingTags(bytes))
 
 	expectedGreeting := fmt.Sprintf(`<epp xmlns="urn:ietf:params:xml:ns:epp-1.0">
   <greeting>
@@ -72,19 +70,18 @@ func TestGreetingXML(t *testing.T) {
     </svcMenu>
     <dcp>
       <access>
-        <all></all>
+        <all/>
       </access>
       <statement>
         <purpose>
-          <admin></admin>
-          <prov></prov>
+          <admin/>
+          <prov/>
         </purpose>
         <recipient>
-          <ours></ours>
-          <public></public>
+          <ours/>
+          <public/>
         </recipient>
         <retention>
-          <stated></stated>
         </retention>
       </statement>
     </dcp>
